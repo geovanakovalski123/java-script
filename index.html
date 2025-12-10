@@ -1,47 +1,123 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>CodingWithLuiz</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <header class="channel-header">
-      <div class="profile-info">
-        <img src="images/youtube/profile.jpg" alt="Profile Picture" class="profile-pic" />
-        <div class="profile-text">
-          <h1>CodingWithLuiz</h1>
-          <p>Desenvolvimento Web | Tutoriais | Dicas de Código</p>
-          <ul class="nav-links">
-            <li><a href="#">Home</a></li>
-            <li><a href="#">Sobre</a></li>
-            <li><a href="#">Contato</a></li>
-          </ul>
-          <button id="darkModeToggle" class="dark-toggle">🌙</button>
-        </div>
-      </div>
-    </header>
+const questions = [
+  {
+    question: "Qual é o maior país do mundo em área territorial?",
+    answers: [
+      { id: 1, text: "Canadá": false },
+      { id: 2, text: "Brasil":false },
+      { id: 3, text: "Rússia", correct: true },
+      { id: 4, text: "Estados unidos", correct: false },
+    ],
+  },
+  {
+    question: "Qual é o maior deserto do mundo?",
+    answers: [
+      { id: 1, text: "Kalahari", correct: false },
+      { id: 2, text: "Gobi", correct: false },
+      { id: 3, text: "Saara", correct: true },
+      { id: 4, text: "Antartica", correct: false },
+    ],
+  },
+  {
+    question: "Qual é o menor continente do mundo?",
+    answers: [
+      { id: 1, text: "Asia", correct: false },
+      { id: 2, text: "Austrália", correct: true },
+      { id: 3, text: "Ártico", correct: false },
+      { id: 4, text: "Áfria", correct: false },
+    ],
+  },
+  {
+    question: "Qual é o menor país do mundo mundo?",
+    answers: [
+      { id: 1, text: "Vaticano", correct: true },
+      { id: 2, text: "Butão", correct: false },
+      { id: 3, text: "Nepal", correct: false },
+      { id: 4, text: "Shri Lanka", correct: false },
+    ],
+  },
+];
 
-    <div class="container">
-      <main>
-        <section class="intro">
-          <h2>Bem-vindo ao meu blog de desenvolvimento!</h2>
-          <p>
-          </p>
-          <input type="text" id="search" autocomplete="off" placeholder="Pesquise postagens..." />
-        </section>
+const questionElement = document.getElementById("question");
+const answerButtons = document.getElementById("answer-buttons");
+const nextButton = document.getElementById("next-btn");
 
-        <div id="posts-container"></div>
-        <div class="pagination" id="pagination"></div>
-      </main>
-    </div>
+let currentQuestionIndex = 0;
+let score = 0;
 
-    <footer>
-      <p>© 2025 codingwithluiz</p>
-    </footer>
+function startQuiz() {
+  currentQuestionIndex = 0;
+  score = 0;
+  nextButton.innerHTML = "Próxima";
+  showQuestion();
+}
 
-    <script src="script.js"></script>
-  </body>
-</html>
+function showQuestion() {
+  resetState();
+  let currentQuestion = questions[currentQuestionIndex];
+  let questionNo = currentQuestionIndex + 1;
+  questionElement.innerHTML = questionNo + ". " + currentQuestion.question;
 
+  currentQuestion.answers.forEach((answer) => {
+    const button = document.createElement("button");
+    button.innerHTML = answer.text;
+    button.classList.add("btn");
+    answerButtons.appendChild(button);
+
+    button.dataset.id = answer.id;
+
+    button.addEventListener("click", selectAnswer);
+  });
+}
+
+function resetState() {
+  nextButton.style.display = "none";
+  while (answerButtons.firstChild) {
+    answerButtons.removeChild(answerButtons.firstChild);
+  }
+}
+
+function selectAnswer(e) {
+  answers = questions[currentQuestionIndex].answers;
+  const correctAnswer = answers.filter((answer) => answer.correct == true)[0];
+  const selectedBtn = e.target;
+  const isCorrect = selectedBtn.dataset.id == correctAnswer.id;
+  if (isCorrect) {
+    selectedBtn.classList.add("correct");
+    score++;
+  } else {
+    selectedBtn.classList.add("incorrect");
+  }
+  Array.from(answerButtons.children).forEach((button) => {
+    if (button.dataset.correct === "true") {
+      button.classList.add("correct");
+    }
+    button.disabled = true;
+  });
+  nextButton.style.display = "block";
+}
+
+function showScore() {
+  resetState();
+  questionElement.innerHTML = `Você acertou ${score} de ${questions.length}!`;
+  nextButton.innerHTML = "Play Again";
+  nextButton.style.display = "block";
+}
+
+function handleNextButton() {
+  currentQuestionIndex++;
+  if (currentQuestionIndex < questions.length) {
+    showQuestion();
+  } else {
+    showScore();
+  }
+}
+
+nextButton.addEventListener("click", () => {
+  if (currentQuestionIndex < questions.length) {
+    handleNextButton();
+  } else {
+    startQuiz();
+  }
+});
+
+startQuiz();
